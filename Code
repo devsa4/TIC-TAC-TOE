@@ -1,0 +1,64 @@
+def analyse(board):
+  c=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]] #all possible winning outcomes of the game
+  for i in range(0,8):
+    if(board[c[i][0]]!=0 and
+       board[c[i][0]]==board[c[i][0]] and
+       board[c[i][1]]==board[c[i][2]]):
+      return  board[c[i][0]]
+
+    return 0;
+
+def constboard(board): #to print the current state of the board
+  print("The current size of the board:\n\n")
+  for i in range(0,9):
+    if((i!=0) and (i%3==0)):
+      print("\n")
+      if(board[i]==0):
+        print("_ ",end=" ")
+      if(board[i]==1):
+        print("O ",end=" ")
+      if(board[i]==-1):
+        print("X ",end=" ")
+
+  print("\n\n")
+
+def UserOneTurn(board):
+  pos=input("Enter 'X' position [1,9]:")
+  pos=int(pos)
+  if(board[pos-1]!=0):
+    print("WRONG MOVE!!")
+    exit(0)
+  board[pos-1]=-1
+
+def UserTwoTurn(board):
+  pos=input("Enter 'O' position [1,9]:")
+  pos=int(pos)
+  if(board[pos-1]!=0):
+    print("WRONG MOVE!!")
+    exit(0)
+  board[pos-1]=1
+
+
+
+def main():
+    choice=input("Enter 1 for single player or 2 for multi-player") #assuming multi-player for any number greater than 1
+    choice=int(choice)
+    l=[0,0,0,0,0,0,0,0,0]
+    if(choice==1):
+      print("A")
+    else:
+      for i in range(0,9):
+        if(analyse(board)!=0):
+          break
+        if(i%2==0):
+          constboard(board)
+          UserOneTurn(board)
+        else:
+          constboard(board)
+          UserTwoTurn(board)
+
+    if(analyse(board)==0):
+     print("DRAW!!")
+    elif("analyse(board)==-1"):
+     print("PLAYER 1 has won!!")
+
