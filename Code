@@ -1,64 +1,81 @@
 def analyse(board):
-  c=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]] #all possible winning outcomes of the game
-  for i in range(0,8):
-    if(board[c[i][0]]!=0 and
-       board[c[i][0]]==board[c[i][0]] and
-       board[c[i][1]]==board[c[i][2]]):
-      return  board[c[i][0]]
+    c = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+    for i in range(8):
+        if board[c[i][0]] != 0 and board[c[i][0]] == board[c[i][1]] and board[c[i][1]] == board[c[i][2]]:
+            return board[c[i][0]]
+    return 0
 
-    return 0;
-
-def constboard(board): #to print the current state of the board
-  print("The current size of the board:\n\n")
-  for i in range(0,9):
-    if((i!=0) and (i%3==0)):
-      print("\n")
-      if(board[i]==0):
-        print("_ ",end=" ")
-      if(board[i]==1):
-        print("O ",end=" ")
-      if(board[i]==-1):
-        print("X ",end=" ")
-
-  print("\n\n")
+def constboard(board):
+    print("The current state of the board:\n")
+    for i in range(9):
+        if i > 0 and i % 3 == 0:
+            print("\n")
+        if board[i] == 0:
+            print("_ ", end=" ")
+        elif board[i] == 1:
+            print("O ", end=" ")
+        elif board[i] == -1:
+            print("X ", end=" ")
+    print("\n")
 
 def UserOneTurn(board):
-  pos=input("Enter 'X' position [1,9]:")
-  pos=int(pos)
-  if(board[pos-1]!=0):
-    print("WRONG MOVE!!")
-    exit(0)
-  board[pos-1]=-1
+    pos = int(input("Enter 'X' position [1-9]: "))
+    if board[pos - 1] != 0:
+        print("WRONG MOVE!!")
+        exit(0)
+    board[pos - 1] = -1
 
 def UserTwoTurn(board):
-  pos=input("Enter 'O' position [1,9]:")
-  pos=int(pos)
-  if(board[pos-1]!=0):
-    print("WRONG MOVE!!")
-    exit(0)
-  board[pos-1]=1
+    pos = int(input("Enter 'O' position [1-9]: "))
+    if board[pos - 1] != 0:
+        print("WRONG MOVE!!")
+        exit(0)
+    board[pos - 1] = 1
 
-
+def CompTurn(board):
+    # Simple AI to choose the first empty spot
+    for i in range(9):
+        if board[i] == 0:
+            board[i] = 1
+            break
 
 def main():
-    choice=input("Enter 1 for single player or 2 for multi-player") #assuming multi-player for any number greater than 1
-    choice=int(choice)
-    l=[0,0,0,0,0,0,0,0,0]
-    if(choice==1):
-      print("A")
+    print("Enter 1 for single player or 2 for multi-player")
+    choice = int(input())
+    board = [0,0,0,0,0,0,0,0,0]
+    if choice == 1:
+        print("Computer O vs You X: \n")
+        print("Enter to play 1st(1) or 2nd(2): ")
+        player = int(input())
+        for i in range(9):
+            if analyse(board) != 0:
+                break
+            if (i + player) % 2 == 0:
+                CompTurn(board)
+            else:
+                constboard(board)
+                UserOneTurn(board)
     else:
-      for i in range(0,9):
-        if(analyse(board)!=0):
-          break
-        if(i%2==0):
-          constboard(board)
-          UserOneTurn(board)
-        else:
-          constboard(board)
-          UserTwoTurn(board)
+        for i in range(9):
+            if analyse(board) != 0:
+                break
 
-    if(analyse(board)==0):
-     print("DRAW!!")
-    elif("analyse(board)==-1"):
-     print("PLAYER 1 has won!!")
+            constboard(board)
+            if i % 2 == 0:
+                UserOneTurn(board)
+            else:
+                UserTwoTurn(board)
+    
+    constboard(board)
+    result = analyse(board)
+    if result == 0:
+        print("DRAW!!")
+    elif result == -1:
+        print("PLAYER 1 has won!!")
+    else:
+        print("PLAYER 2 has won!!")
+
+if __name__ == "__main__":
+    main()
+
 
