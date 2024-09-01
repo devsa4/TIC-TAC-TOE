@@ -32,12 +32,50 @@ def UserTwoTurn(board):
         exit(0)
     board[pos - 1] = 1
 
+def minimax(board, player):
+        x=analyse(board)
+        if(x!=0):
+            return (x*player)
+        pos = -1
+        value = -2
+        for i in range(9):
+            if board[i] == 0:
+                board[i] = player
+                score = -minimax(board, player * -1)
+                board[i] = 0
+                if score > value:
+                    value = score
+                    pos = i
+            if pos == -1:
+                return 0
+        return value
+
 def CompTurn(board):
-    # Simple AI to choose the first empty spot
+    # Prioritize blocking the player's winning moves
+    c = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+    for i in range(8):
+        if board[c[i][0]] == -1 and board[c[i][1]] == -1 and board[c[i][2]] == 0:
+            board[c[i][2]] = 1
+            return
+        if board[c[i][0]] == -1 and board[c[i][2]] == -1 and board[c[i][1]] == 0:
+            board[c[i][1]] = 1
+            return
+        if board[c[i][1]] == -1 and board[c[i][2]] == -1 and board[c[i][0]] == 0:
+            board[c[i][0]] = 1
+            return
+
+    # If no blocking moves are available, use the minimax algorithm
+    pos = -1
+    value = -2
     for i in range(9):
         if board[i] == 0:
             board[i] = 1
-            break
+            score = -minimax(board, -2)
+            board[i] = 0
+            if score > value:
+                value = score
+                pos = i
+    board[pos] = 1
 
 def main():
     print("Enter 1 for single player or 2 for multi-player")
@@ -47,6 +85,10 @@ def main():
         print("Computer O vs You X: \n")
         print("Enter to play 1st(1) or 2nd(2): ")
         player = int(input())
+        if(player==1):
+          print("You are PLAYER 1 and Computer is PLAYER 2")
+        else:
+          print("You are PLAYER 2 and Computer is PLAYER 1")
         for i in range(9):
             if analyse(board) != 0:
                 break
@@ -65,7 +107,7 @@ def main():
                 UserOneTurn(board)
             else:
                 UserTwoTurn(board)
-    
+
     constboard(board)
     result = analyse(board)
     if result == 0:
@@ -77,5 +119,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
