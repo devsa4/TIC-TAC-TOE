@@ -1,0 +1,160 @@
+import tkinter as tk
+from tkinter import messagebox
+import random
+
+class TicTacToeApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Tic-Tac-Toe")
+
+        self.board = [0] * 9
+        self.current_player = -1  # -1 for X, 1 for O
+        self.create_widgets()
+        self.game_mode = "Multiplayer"  # Default to multiplayer
+        self.difficulty = "Easy"  # Default to easy
+
+    def create_widgets(self):
+        self.buttons = []
+        for i in range(9):
+            button = tk.Button(self.root, text="", font=("Arial", 20), width=5, height=2,
+                               command=lambda i=i: self.on_button_click(i))
+            button.grid(row=i // 3, column=i % 3)
+            self.buttons.append(button)
+
+        self.info_label = tk.Label(self.root, text="Player X's Turn", font=("Arial", 16))
+        self.info_label.grid(row=3, column=0, columnspan=3)
+
+        self.menu_frame = tk.Frame(self.root)
+        self.menu_frame.grid(row=4, column=0, columnspan=3)
+
+        self.play_button = tk.Button(self.menu_frame, text="Play Again", command=self.play)
+        self.play_button.pack(side="left")
+
+        self.mode_button = tk.Button(self.menu_frame, text="Switch to Single Player", command=self.switch_mode)
+        self.mode_button.pack(side="left")
+
+        self.difficulty_button = tk.Button(self.menu_frame, text="Set Difficulty: Easy", command=self.switch_difficulty)
+        self.difficulty_button.pack(side="left")
+
+    def on_button_click(self, index):
+        if self.board[index] == 0:
+            self.board[index] = self.current_player
+            self.buttons[index].config(text="X" if self.current_player == -1 else "O")
+            winner = self.check_winner()
+            if winner:
+                self.show_winner(winner)
+            elif 0 not in self.board:
+                self.show_draw()
+            else:
+                self.current_player *= -1
+                if self.game_mode == "Multiplayer":
+                    self.info_label.config(text="Player X's Turn" if self.current_player == -1 else "Player O's Turn")
+                elif self.game_mode == "SinglePlayer" and self.current_player == 1:
+                    self.after_delay(self.computer_turn)
+
+    def after_delay(self, func):
+        self.root.after(500, func)
+
+    def computer_turn(self):
+        if self.difficulty == "Easy":
+            self.easy_computer_turn()
+        else:
+            self.hard_computer_turn()
+        winner = self.check_winner()
+        if winner:
+            self.show_winner(winner)
+        elif 0 not in self.board:
+            self.show_draw()
+        else:
+            self.current_player *= -1
+            self.info_label.config(text="Player X's Turn" if self.current_player == -1 else "Player O's Turn")
+
+    def easy_computer_turn(self):
+        available_positions = [i for i in range(9) if self.board[i] == 0]
+        pos = random.choice(available_positions)
+        self.board[pos] = 1
+        self.buttons[pos].config(text="O")
+
+    def hard_computer_turn(self):
+        pos = -1
+        value = -2
+        for i in range(9):
+            if self.board[i] == 0:
+                self.board[i] = 1
+                score = -self.minimax(self.board, -1)
+                self.board[i] = 0
+                if score > value:
+                    value = score
+                    pos = i
+        if pos != -1:
+            self.board[pos] = 1
+            self.buttons[pos].config(text="O")
+
+    def minimax(self, board, player):
+        x = self.check_winner(board)
+        if x != 0:
+            return x * player
+        pos = -1
+        value = -2
+        for i in range(9):
+            if board[i] == 0:
+                board[i] = player
+                score = -self.minimax(board, player * -1)
+                board[i] = 0
+                if score > value:
+                    value = score
+                    pos = i
+        return value
+
+    def check_winner(self, board=None):
+        if board is None:
+            board = self.board
+        c = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+        for i in range(8):
+            if board[c[i][0]] != 0 and board[c[i][0]] == board[c[i][1]] and board[c[i][1]] == board[c[i][2]]:
+                return board[c[i][0]]
+        return 0
+
+    def show_winner(self, winner):
+        if winner == -1:
+            messagebox.showinfo("Game Over", "Player X wins!")
+        else:
+            messagebox.showinfo("Game Over", "Player O wins!")
+        self.reset_game()
+
+    def show_draw(self):
+        messagebox.showinfo("Game Over", "It's a draw!")
+        self.reset_game()
+
+    def reset_game(self):
+        self.board = [0] * 9
+        self.current_player = -1
+        self.info_label.config(text="Player X's Turn")
+        for button in self.buttons:
+            button.config(text="")
+
+    def switch_mode(self):
+        if self.game_mode == "Multiplayer":
+            self.game_mode = "SinglePlayer"
+            self.mode_button.config(text="Switch to Multiplayer")
+            self.info_label.config(text="Player X's Turn")
+        else:
+            self.game_mode = "Multiplayer"
+            self.mode_button.config(text="Switch to Single Player")
+            self.info_label.config(text="Player X's Turn")
+
+    def switch_difficulty(self):
+        if self.difficulty == "Easy":
+            self.difficulty = "Hard"
+            self.difficulty_button.config(text="Set Difficulty: Hard")
+        else:
+            self.difficulty = "Easy"
+            self.difficulty_button.config(text="Set Difficulty: Easy")
+
+    def play(self):
+        self.reset_game()
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = TicTacToeApp(root)
+    root.mainloop()
